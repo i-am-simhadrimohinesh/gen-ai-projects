@@ -6,3 +6,6 @@ langgraph-checkpoint-sqlite
 python-dotenv
 ipykernel
 ddgs
+pypdf
+faiss-cpu
+tempfile

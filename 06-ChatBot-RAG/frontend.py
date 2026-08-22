@@ -2,7 +2,7 @@
 import streamlit as st
 from langchain_core.messages import HumanMessage,AIMessage
 from uuid import uuid4
-from backend import chatworkflow,checkpointer,delete_thread_by_id
+from backend import chatworkflow,checkpointer,delete_thread_by_id,load_pdf
 
 # 2. Main Page UI
 st.set_page_config(
@@ -54,6 +54,18 @@ if st.sidebar.button("New Chat"):
     st.session_state["thread_list"].append(thread_id)
     st.session_state["thread_titles"][thread_id] = "New Chat"
     st.rerun()
+
+if "uploaded_file_name" not in st.session_state:
+    st.session_state["uploaded_file_name"] = None
+uploaded_file = st.sidebar.file_uploader(
+    "📄 Upload PDF",
+    type=["pdf"]
+)
+
+if uploaded_file:
+    if uploaded_file.name != st.session_state["uploaded_file_name"]:
+        load_pdf(uploaded_file)
+        st.session_state["uploaded_file_name"] = uploaded_file.name
 
 st.sidebar.header("My Conversations")
 for thread_id in st.session_state["thread_list"][::-1]:
@@ -122,7 +134,6 @@ if user_query:= st.chat_input("Type your message here"):
                     for chunk in message_chunk.content
                     if isinstance(chunk, dict) and chunk.get("type") == "text"
                 )
-                print(res)
     except Exception as e:
         print(e)
         st.error("Failed to generate a response. Please try again.")
